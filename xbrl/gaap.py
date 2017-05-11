@@ -5,7 +5,7 @@ from __future__ import print_function
 
 from xbrl import XBRLParser, GAAP, GAAPSerializer, DEISerializer
 
-xbrl_parser = XBRLParser(0)
+xbrl_parser = XBRLParser()
 
 # Parse an incoming XBRL file
 file_to_parse = "../tests/sam-20130629.xml"

@@ -7,6 +7,7 @@ import datetime
 import collections
 import six
 import logging
+import warnings
 
 try:
     from StringIO import StringIO
@@ -48,7 +49,8 @@ class XBRLParserException(Exception):
 class XBRLParser(object):
 
     def __init__(self, precision=0):
-        self.precision = precision
+        if precision:
+            warnings.warn("The precision argument has been deprecated. The argument will not affect any results.", DeprecationWarning, stacklevel=2)
         self.logger = logging.getLogger(__name__)
 
     @classmethod
@@ -644,13 +646,14 @@ class XBRLParser(object):
         encoded = s.encode('ascii', 'ignore')
         str_val = ""
         if six.PY3:
-            str_val = str(encoded, encoding='ascii', errors='ignore')[:precision]
+            str_val = str(encoded, encoding='ascii', errors='ignore')
         else:
-            # If precision is 0, this must be handled seperately
-            if precision == 0:
-                str_val = str(encoded)
-            else:
-                str_val = str(encoded)[:precision]
+            str_val = str(encoded)
+
+        # Do nothing if precision is 0
+        if precision != 0:
+            str_val = str_val[:precision]
+
         if len(str_val) > 0:
             return float(str_val)
         else:
@@ -685,7 +688,7 @@ class XBRLParser(object):
             if len(elements) > 0:
                     return elements[0].text
 
-        if options['no_context'] == True:
+        if options['no_context'] is True:
             if len(elements) > 0 and XBRLParser().is_number(elements[0].text):
                     return elements[0].text
 
@@ -699,15 +702,14 @@ class XBRLParser(object):
             elements = correct_elements
 
             if len(elements) > 0 and XBRLParser().is_number(elements[0].text):
-                decimals = elements[0].attrs['decimals']
-                if decimals is not None:
-                    attr_precision = decimals
-                    if xbrl.precision != 0 \
-                    and xbrl.precison != attr_precision:
-                        xbrl.precision = attr_precision
+                attr_precision = elements[0].attrs['decimals']
+                if attr_precision is not None:
+                    if attr_precision == "INF":
+                        # INF precision implies 0.
+                        attr_precision = 0
+
                 if elements:
-                    return XBRLParser().trim_decimals(elements[0].text,
-                        int(xbrl.precision))
+                    return XBRLParser().trim_decimals(elements[0].text, int(attr_precision))
                 else:
                     return 0
             else:

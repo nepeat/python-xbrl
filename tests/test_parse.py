@@ -42,7 +42,7 @@ def test_open_file_handle():
 
 def test_parse_GAAP10Q_RRDonnelley():
 
-    xbrl_parser = XBRLParser(0)
+    xbrl_parser = XBRLParser()
     file_to_parse = "tests/sam-20130629.xml"
     xbrl = xbrl_parser.parse(file_to_parse)
     gaap_obj = xbrl_parser.parseGAAP(xbrl,
@@ -108,7 +108,7 @@ def test_parse_GAAP10Q_RRDonnelley():
 
 def test_parse_GAAP10K_RRDonnelley():
 
-    xbrl_parser = XBRLParser(0)
+    xbrl_parser = XBRLParser()
     file_to_parse = "tests/sam-20131228.xml"
     xbrl = xbrl_parser.parse(file_to_parse)
     gaap_obj = xbrl_parser.parseGAAP(xbrl,
@@ -175,7 +175,7 @@ def test_parse_GAAP10K_RRDonnelley():
 
 def test_parse_GAAP10K_Webfilings():
 
-    xbrl_parser = XBRLParser(0)
+    xbrl_parser = XBRLParser()
     file_to_parse = "tests/goog-20131231.xml"
     xbrl = xbrl_parser.parse(file_to_parse)
     gaap_obj = xbrl_parser.parseGAAP(xbrl,
@@ -242,7 +242,7 @@ def test_parse_GAAP10K_Webfilings():
 
 def test_parse_GAAP10Q_Webfilings():
 
-    xbrl_parser = XBRLParser(0)
+    xbrl_parser = XBRLParser()
     file_to_parse = "tests/goog-20140630.xml"
     xbrl = xbrl_parser.parse(file_to_parse)
     gaap_obj = xbrl_parser.parseGAAP(xbrl,
@@ -309,7 +309,7 @@ def test_parse_GAAP10Q_Webfilings():
 
 def test_parse_GAAP10Q_Rivet():
 
-    xbrl_parser = XBRLParser(0)
+    xbrl_parser = XBRLParser()
     file_to_parse = "tests/c289-20140503.xml"
     xbrl = xbrl_parser.parse(file_to_parse)
     gaap_obj = xbrl_parser.parseGAAP(xbrl,
@@ -376,7 +376,7 @@ def test_parse_GAAP10Q_Rivet():
 
 def test_parse_GAAP10K_Rivet():
 
-    xbrl_parser = XBRLParser(0)
+    xbrl_parser = XBRLParser()
     file_to_parse = "tests/rsh-20131231.xml"
     xbrl = xbrl_parser.parse(file_to_parse)
     gaap_obj = xbrl_parser.parseGAAP(xbrl,
@@ -443,7 +443,7 @@ def test_parse_GAAP10K_Rivet():
 
 def test_parse_GAAP10Q_QXInteractive():
 
-    xbrl_parser = XBRLParser(0)
+    xbrl_parser = XBRLParser()
     file_to_parse = "tests/aaoi-20140630.xml"
     xbrl = xbrl_parser.parse(file_to_parse)
     gaap_obj = xbrl_parser.parseGAAP(xbrl,
@@ -510,7 +510,7 @@ def test_parse_GAAP10Q_QXInteractive():
 
 def test_parse_GAAP10K_ThomsonReuters():
 
-    xbrl_parser = XBRLParser(0)
+    xbrl_parser = XBRLParser()
     file_to_parse = "tests/aaoi-20131231.xml"
     xbrl = xbrl_parser.parse(file_to_parse)
     gaap_obj = xbrl_parser.parseGAAP(xbrl,
@@ -577,7 +577,7 @@ def test_parse_GAAP10K_ThomsonReuters():
 
 def test_parse_GAAP10Q_Fujitsu():
 
-    xbrl_parser = XBRLParser(0)
+    xbrl_parser = XBRLParser()
     file_to_parse = "tests/aaww-20140630.xml"
     xbrl = xbrl_parser.parse(file_to_parse)
     gaap_obj = xbrl_parser.parseGAAP(xbrl,
@@ -644,7 +644,7 @@ def test_parse_GAAP10Q_Fujitsu():
 
 def test_parse_GAAP10K_Fujitsu():
 
-    xbrl_parser = XBRLParser(0)
+    xbrl_parser = XBRLParser()
     file_to_parse = "tests/aaww-20131231.xml"
     xbrl = xbrl_parser.parse(file_to_parse)
     gaap_obj = xbrl_parser.parseGAAP(xbrl,
@@ -711,7 +711,7 @@ def test_parse_GAAP10K_Fujitsu():
 
 def test_parse_GAAP10Q_Ez_XBRL():
 
-    xbrl_parser = XBRLParser(0)
+    xbrl_parser = XBRLParser()
     file_to_parse = "tests/ggho-20140930.xml"
     xbrl = xbrl_parser.parse(file_to_parse)
     gaap_obj = xbrl_parser.parseGAAP(xbrl,
@@ -777,7 +777,7 @@ def test_parse_GAAP10Q_Ez_XBRL():
 
 def test_parse_DEI10Q_RRDonnelley():
 
-    xbrl_parser = XBRLParser(0)
+    xbrl_parser = XBRLParser()
     file_to_parse = "tests/sam-20130629.xml"
     xbrl = xbrl_parser.parse(file_to_parse)
     dei_obj = xbrl_parser.parseDEI(xbrl)
@@ -793,7 +793,7 @@ def test_parse_DEI10Q_RRDonnelley():
 
 def test_parse_Custom10Q_RRDonnelley():
 
-    xbrl_parser = XBRLParser(0)
+    xbrl_parser = XBRLParser()
     file_to_parse = "tests/sam-20130629.xml"
     xbrl = xbrl_parser.parse(file_to_parse)
     custom_obj = xbrl_parser.parseCustom(xbrl)
