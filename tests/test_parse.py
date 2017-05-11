@@ -235,9 +235,9 @@ def test_parse_GAAP10K_Webfilings():
     assert result.data['interest_and_debt_expense'] == 0.0
     assert result.data['net_income_loss_noncontrolling'] == 0.0
     assert result.data['net_cash_flows_operating'] == 0.0
-    assert result.data['common_shares_outstanding'] == 0.0
-    assert result.data['common_shares_issued'] == 0.0
-    assert result.data['common_shares_authorized'] == 0.0
+    assert result.data['common_shares_outstanding'] == 335832.0
+    assert result.data['common_shares_issued'] == 335832.0
+    assert result.data['common_shares_authorized'] == 12000000000.0
 
 
 def test_parse_GAAP10Q_Webfilings():
@@ -370,8 +370,8 @@ def test_parse_GAAP10Q_Rivet():
     assert result.data['net_income_loss_noncontrolling'] == 0.0
     assert result.data['net_cash_flows_operating'] == 0.0
     assert result.data['common_shares_outstanding'] == 0.0
-    assert result.data['common_shares_issued'] == 0.0
-    assert result.data['common_shares_authorized'] == 0.0
+    assert result.data['common_shares_issued'] == 146033000.0
+    assert result.data['common_shares_authorized'] == 650000000.0
 
 
 def test_parse_GAAP10K_Rivet():
@@ -437,8 +437,8 @@ def test_parse_GAAP10K_Rivet():
     assert result.data['net_income_loss_noncontrolling'] == 0.0
     assert result.data['net_cash_flows_operating'] == 0.0
     assert result.data['common_shares_outstanding'] == 0.0
-    assert result.data['common_shares_issued'] == 0.0
-    assert result.data['common_shares_authorized'] == 0.0
+    assert result.data['common_shares_issued'] == 146033000.0
+    assert result.data['common_shares_authorized'] == 650000000.0
 
 
 def test_parse_GAAP10Q_QXInteractive():
@@ -503,9 +503,9 @@ def test_parse_GAAP10Q_QXInteractive():
     assert result.data['interest_and_debt_expense'] == 0.0
     assert result.data['net_income_loss_noncontrolling'] == 0.0
     assert result.data['net_cash_flows_operating'] == 0.0
-    assert result.data['common_shares_outstanding'] == 0.0
-    assert result.data['common_shares_issued'] == 0.0
-    assert result.data['common_shares_authorized'] == 0.0
+    assert result.data['common_shares_outstanding'] == 14798000.0
+    assert result.data['common_shares_issued'] == 14798000.0
+    assert result.data['common_shares_authorized'] == 45000000.0
 
 
 def test_parse_GAAP10K_ThomsonReuters():
@@ -570,9 +570,9 @@ def test_parse_GAAP10K_ThomsonReuters():
     assert result.data['interest_and_debt_expense'] == 0.0
     assert result.data['net_income_loss_noncontrolling'] == 0.0
     assert result.data['net_cash_flows_operating'] == 0.0
-    assert result.data['common_shares_outstanding'] == 0.0
-    assert result.data['common_shares_issued'] == 0.0
-    assert result.data['common_shares_authorized'] == 0.0
+    assert result.data['common_shares_outstanding'] == 12644000.0
+    assert result.data['common_shares_issued'] == 12644000.0
+    assert result.data['common_shares_authorized'] == 45000000.0
 
 
 def test_parse_GAAP10Q_Fujitsu():
@@ -627,7 +627,7 @@ def test_parse_GAAP10Q_Fujitsu():
     assert result.data['commitments_and_contingencies'] == 0.0
     assert result.data['comprehensive_income_parent'] == -515.0
     assert result.data['income_before_equity_investments'] == 0.0
-    assert result.data['comprehensive_income_interest'] == 0.0
+    assert result.data['comprehensive_income_interest'] == -515.0
     assert result.data['other_comprehensive_income'] == 0.0
     assert result.data['equity_attributable_parent'] == 0.0
     assert result.data['assets'] == 4100064.0
@@ -635,11 +635,11 @@ def test_parse_GAAP10Q_Fujitsu():
     assert result.data['net_cash_flows_operating_continuing'] == 0.0
     assert result.data['current_assets'] == 531590.0
     assert result.data['interest_and_debt_expense'] == 0.0
-    assert result.data['net_income_loss_noncontrolling'] == 0.0
+    assert result.data['net_income_loss_noncontrolling'] == -612.0
     assert result.data['net_cash_flows_operating'] == 0.0
-    assert result.data['common_shares_outstanding'] == 0.0
-    assert result.data['common_shares_issued'] == 0.0
-    assert result.data['common_shares_authorized'] == 0.0
+    assert result.data['common_shares_outstanding'] == 25256124.0
+    assert result.data['common_shares_issued'] == 28547138.0
+    assert result.data['common_shares_authorized'] == 50000000.0
 
 
 def test_parse_GAAP10K_Fujitsu():
@@ -704,9 +704,9 @@ def test_parse_GAAP10K_Fujitsu():
     assert result.data['interest_and_debt_expense'] == 0.0
     assert result.data['net_income_loss_noncontrolling'] == 0.0
     assert result.data['net_cash_flows_operating'] == 0.0
-    assert result.data['common_shares_outstanding'] == 0.0
-    assert result.data['common_shares_issued'] == 0.0
-    assert result.data['common_shares_authorized'] == 0.0
+    assert result.data['common_shares_outstanding'] == 25038629.0
+    assert result.data['common_shares_issued'] == 28200213.0
+    assert result.data['common_shares_authorized'] == 50000000.0
 
 
 def test_parse_GAAP10Q_Ez_XBRL():
@@ -770,9 +770,9 @@ def test_parse_GAAP10Q_Ez_XBRL():
     assert result.data['current_assets'] == 20836.0
     assert result.data['interest_and_debt_expense'] == 0.0
     assert result.data['net_cash_flows_operating'] == 0.0
-    assert result.data['common_shares_outstanding'] == 0.0
-    assert result.data['common_shares_issued'] == 0.0
-    assert result.data['common_shares_authorized'] == 0.0
+    assert result.data['common_shares_outstanding'] == 15168891.0
+    assert result.data['common_shares_issued'] == 15168891.0
+    assert result.data['common_shares_authorized'] == 500000000.0
 
 
 def test_parse_DEI10Q_RRDonnelley():
