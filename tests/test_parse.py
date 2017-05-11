@@ -1,11 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-from xbrl import XBRLParser
-from xbrl import GAAP
-from xbrl import GAAPSerializer
-from xbrl import DEISerializer
-from xbrl import XBRLParserException
+from xbrl import XBRLParser, XBRLParserException, GAAPSerializer, DEISerializer
 import pytest
 import sys
 import os

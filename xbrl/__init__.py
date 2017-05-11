@@ -3,6 +3,10 @@
 
 from __future__ import absolute_import
 
-from .xbrl import XBRLParser, GAAP, GAAPSerializer, XBRLParserException, DEISerializer
+from xbrl.parser import XBRLParser, XBRLParserException
+from xbrl.model import GAAP
+from xbrl.serializers import GAAPSerializer, DEISerializer
 
-version = (1, 1, 0)
+VERSION = (1, 1, 0)
+
+__ALL__ = [XBRLParser, XBRLParserException, GAAPSerializer, DEISerializer, GAAP]
