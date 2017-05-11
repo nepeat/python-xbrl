@@ -49,6 +49,7 @@ class XBRLParser(object):
 
     def __init__(self, precision=0):
         self.precision = precision
+        self.logger = logging.getLogger(__name__)
 
     @classmethod
     def parse(self, file_handle):
@@ -95,14 +96,6 @@ class XBRLParser(object):
         Parse GAAP from our XBRL soup and return a GAAP object.
         """
         gaap_obj = GAAP()
-
-        if ignore_errors == 2:
-            logging.basicConfig(filename='/tmp/xbrl.log',
-                level=logging.ERROR,
-                format='%(asctime)s %(levelname)s %(name)s %(message)s')
-            logger = logging.getLogger(__name__)
-        else:
-            logger = None
 
         # the default is today
         if doc_date == "":
@@ -199,12 +192,12 @@ class XBRLParser(object):
 
         assets = xbrl.find_all("us-gaap:assets")
         gaap_obj.assets = self.data_processing(assets, xbrl,
-            ignore_errors, logger, context_ids)
+            ignore_errors, context_ids)
 
         current_assets = \
             xbrl.find_all("us-gaap:assetscurrent")
         gaap_obj.current_assets = self.data_processing(current_assets,
-            xbrl, ignore_errors, logger, context_ids)
+            xbrl, ignore_errors, context_ids)
 
         non_current_assets = \
             xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(assetsnoncurrent)",
@@ -216,21 +209,21 @@ class XBRLParser(object):
         else:
             gaap_obj.non_current_assets = \
                 self.data_processing(non_current_assets, xbrl,
-                    ignore_errors, logger, context_ids)
+                    ignore_errors, context_ids)
 
         liabilities_and_equity = \
             xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(liabilitiesand)",
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.liabilities_and_equity = \
             self.data_processing(liabilities_and_equity, xbrl,
-                ignore_errors, logger, context_ids)
+                ignore_errors, context_ids)
 
         liabilities = \
             xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(liabilities)",
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.liabilities = \
             self.data_processing(liabilities, xbrl, ignore_errors,
-                logger, context_ids)
+                context_ids)
 
         current_liabilities = \
             xbrl.find_all(name=re.compile("(us-gaap:)[^s]\
@@ -238,7 +231,7 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.current_liabilities = \
             self.data_processing(current_liabilities, xbrl,
-                ignore_errors, logger, context_ids)
+                ignore_errors, context_ids)
 
         noncurrent_liabilities = \
             xbrl.find_all(name=re.compile("(us-gaap:)[^s]\
@@ -246,7 +239,7 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.noncurrent_liabilities = \
             self.data_processing(noncurrent_liabilities, xbrl,
-                ignore_errors, logger, context_ids)
+                ignore_errors, context_ids)
 
         commitments_and_contingencies = \
             xbrl.find_all(name=re.compile("(us-gaap:commitments\
@@ -254,26 +247,26 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.commitments_and_contingencies = \
             self.data_processing(commitments_and_contingencies, xbrl,
-                ignore_errors, logger, context_ids)
+                ignore_errors, context_ids)
 
         redeemable_noncontrolling_interest = \
             xbrl.find_all(name=re.compile("(us-gaap:redeemablenoncontrolling\
                           interestequity)", re.IGNORECASE | re.MULTILINE))
         gaap_obj.redeemable_noncontrolling_interest = \
             self.data_processing(redeemable_noncontrolling_interest,
-                xbrl, ignore_errors, logger, context_ids)
+                xbrl, ignore_errors, context_ids)
 
         temporary_equity = \
             xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(temporaryequity)",
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.temporary_equity = \
             self.data_processing(temporary_equity, xbrl, ignore_errors,
-                logger, context_ids)
+                context_ids)
 
         equity = xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(equity)",
                                re.IGNORECASE | re.MULTILINE))
         gaap_obj.equity = self.data_processing(equity, xbrl, ignore_errors,
-            logger, context_ids)
+            context_ids)
 
         equity_attributable_interest = \
             xbrl.find_all(name=re.compile("(us-gaap:minorityinterest)",
@@ -284,7 +277,7 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.equity_attributable_interest = \
             self.data_processing(equity_attributable_interest, xbrl,
-                ignore_errors, logger, context_ids)
+                ignore_errors, context_ids)
 
         equity_attributable_parent = \
             xbrl.find_all(name=re.compile("(us-gaap:liabilitiesandpartners\
@@ -295,16 +288,16 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.equity_attributable_parent = \
             self.data_processing(equity_attributable_parent, xbrl,
-                ignore_errors, logger, context_ids)
+                ignore_errors, context_ids)
         gaap_obj.stockholders_equity = \
             self.data_processing(stockholders_equity, xbrl, ignore_errors,
-                logger, context_ids)
+                context_ids)
 
         # Incomes #
         revenues = xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(revenue)",
                                  re.IGNORECASE | re.MULTILINE))
         gaap_obj.revenues = self.data_processing(revenues, xbrl,
-            ignore_errors, logger, context_ids)
+            ignore_errors, context_ids)
 
         cost_of_revenue = \
             xbrl.find_all(name=re.compile("(us-gaap:costofrevenue)",
@@ -325,49 +318,49 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.gross_profit = \
             self.data_processing(gross_profit, xbrl, ignore_errors,
-                                 logger, context_ids)
+                                 context_ids)
 
         operating_expenses = \
             xbrl.find_all(name=re.compile("(us-gaap:operating)[^s]*(expenses)",
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.operating_expenses = \
             self.data_processing(operating_expenses, xbrl, ignore_errors,
-                                 logger, context_ids)
+                                 context_ids)
 
         costs_and_expenses = \
             xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(costsandexpenses)",
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.costs_and_expenses = \
             self.data_processing(costs_and_expenses, xbrl, ignore_errors,
-                                 logger, context_ids)
+                                 context_ids)
 
         other_operating_income = \
             xbrl.find_all(name=re.compile("(us-gaap:otheroperatingincome)",
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.other_operating_income = \
             self.data_processing(other_operating_income, xbrl, ignore_errors,
-                                 logger, context_ids)
+                                 context_ids)
 
         operating_income_loss = \
             xbrl.find_all(name=re.compile("(us-gaap:otheroperatingincome)",
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.operating_income_loss = \
             self.data_processing(operating_income_loss, xbrl, ignore_errors,
-                                 logger, context_ids)
+                                 context_ids)
 
         nonoperating_income_loss = \
             xbrl.find_all(name=re.compile("(us-gaap:nonoperatingincomeloss)",
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.nonoperating_income_loss = \
             self.data_processing(nonoperating_income_loss, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         interest_and_debt_expense = \
             xbrl.find_all(name=re.compile("(us-gaap:interestanddebtexpense)",
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.interest_and_debt_expense = \
             self.data_processing(interest_and_debt_expense, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         income_before_equity_investments = \
             xbrl.find_all(name=re.compile("(us-gaap:incomelossfromcontinuing"
@@ -376,21 +369,21 @@ class XBRLParser(object):
                           re.IGNORECASE  | re.MULTILINE))
         gaap_obj.income_before_equity_investments = \
             self.data_processing(income_before_equity_investments, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         income_from_equity_investments = \
             xbrl.find_all(name=re.compile("(us-gaap:incomelossfromequity"
                           "methodinvestments)", re.IGNORECASE | re.MULTILINE))
         gaap_obj.income_from_equity_investments = \
             self.data_processing(income_from_equity_investments, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         income_tax_expense_benefit = \
             xbrl.find_all(name=re.compile("(us-gaap:incometaxexpensebenefit)",
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.income_tax_expense_benefit = \
             self.data_processing(income_tax_expense_benefit, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         income_continuing_operations_tax = \
             xbrl.find_all(name=re.compile("(us-gaap:IncomeLossBeforeExtraordinaryItems\
@@ -398,33 +391,33 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.income_continuing_operations_tax = \
             self.data_processing(income_continuing_operations_tax, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         income_discontinued_operations = \
             xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(discontinued"
                           "operation)", re.IGNORECASE | re.MULTILINE))
         gaap_obj.income_discontinued_operations = \
             self.data_processing(income_discontinued_operations, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         extraordary_items_gain_loss = \
             xbrl.find_all(name=re.compile("(us-gaap:extraordinaryitem"
                           "netoftax)", re.IGNORECASE | re.MULTILINE))
         gaap_obj.extraordary_items_gain_loss = \
             self.data_processing(extraordary_items_gain_loss, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         income_loss = \
             xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(incomeloss)",
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.income_loss = \
             self.data_processing(income_loss, xbrl, ignore_errors,
-                logger, context_ids)
+                context_ids)
         income_loss += xbrl.find_all(name=re.compile("(us-gaap:profitloss)",
                                      re.IGNORECASE | re.MULTILINE))
         gaap_obj.income_loss = \
             self.data_processing(income_loss, xbrl, ignore_errors,
-                                 logger, context_ids)
+                                 context_ids)
 
         net_income_shareholders = \
             xbrl.find_all(name=re.compile("(us-gaap:netincomeavailabletocommon\
@@ -432,14 +425,14 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.net_income_shareholders = \
             self.data_processing(net_income_shareholders, xbrl, ignore_errors,
-                                 logger, context_ids)
+                                 context_ids)
 
         preferred_stock_dividends = \
             xbrl.find_all(name=re.compile("(us-gaap:preferredstockdividendsand\
                           otheradjustments)", re.IGNORECASE | re.MULTILINE))
         gaap_obj.preferred_stock_dividends = \
             self.data_processing(preferred_stock_dividends, xbrl,
-                ignore_errors, logger, context_ids)
+                ignore_errors, context_ids)
 
         net_income_loss_noncontrolling = \
             xbrl.find_all(name=re.compile("(us-gaap:netincomelossattributableto\
@@ -447,35 +440,35 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.net_income_loss_noncontrolling = \
             self.data_processing(net_income_loss_noncontrolling, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         net_income_loss = \
             xbrl.find_all(name=re.compile("^us-gaap:netincomeloss$",
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.net_income_loss = \
             self.data_processing(net_income_loss, xbrl, ignore_errors,
-                                 logger, context_ids)
+                                 context_ids)
 
         other_comprehensive_income = \
             xbrl.find_all(name=re.compile("(us-gaap:othercomprehensiveincomeloss\
                           netoftax)", re.IGNORECASE | re.MULTILINE))
         gaap_obj.other_comprehensive_income = \
             self.data_processing(other_comprehensive_income, xbrl,
-                ignore_errors, logger, context_ids)
+                ignore_errors, context_ids)
 
         comprehensive_income = \
             xbrl.find_all(name=re.compile("(us-gaap:comprehensiveincome)",
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.comprehensive_income = \
             self.data_processing(comprehensive_income, xbrl, ignore_errors,
-                                 logger, context_ids)
+                                 context_ids)
 
         comprehensive_income_parent = \
             xbrl.find_all(name=re.compile("(us-gaap:comprehensiveincomenetof"
                           "tax)", re.IGNORECASE | re.MULTILINE))
         gaap_obj.comprehensive_income_parent = \
             self.data_processing(comprehensive_income_parent, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         comprehensive_income_interest = \
             xbrl.find_all(name=re.compile("(us-gaap:comprehensiveincomenetoftax\
@@ -483,7 +476,7 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.comprehensive_income_interest = \
             self.data_processing(comprehensive_income_interest, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         # Cash flow statements #
         net_cash_flows_operating = \
@@ -491,21 +484,21 @@ class XBRLParser(object):
                           operatingactivities)", re.IGNORECASE | re.MULTILINE))
         gaap_obj.net_cash_flows_operating = \
             self.data_processing(net_cash_flows_operating, xbrl, ignore_errors,
-                                 logger, context_ids)
+                                 context_ids)
 
         net_cash_flows_investing = \
             xbrl.find_all(name=re.compile("(us-gaap:netcashprovidedbyusedin\
                           investingactivities)", re.IGNORECASE | re.MULTILINE))
         gaap_obj.net_cash_flows_investing = \
             self.data_processing(net_cash_flows_investing, xbrl, ignore_errors,
-                                logger, context_ids)
+                                context_ids)
 
         net_cash_flows_financing = \
             xbrl.find_all(name=re.compile("(us-gaap:netcashprovidedbyusedin\
                           financingactivities)", re.IGNORECASE | re.MULTILINE))
         gaap_obj.net_cash_flows_financing = \
             self.data_processing(net_cash_flows_financing, xbrl, ignore_errors,
-                                logger, context_ids)
+                                context_ids)
 
         net_cash_flows_operating_continuing = \
             xbrl.find_all(name=re.compile("(us-gaap:netcashprovidedbyusedin\
@@ -513,7 +506,7 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.net_cash_operating_continuing = \
             self.data_processing(net_cash_flows_operating_continuing, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         net_cash_flows_investing_continuing = \
             xbrl.find_all(name=re.compile("(us-gaap:netcashprovidedbyusedin\
@@ -521,7 +514,7 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.net_cash_flows_investing_continuing = \
             self.data_processing(net_cash_flows_investing_continuing, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         net_cash_flows_financing_continuing = \
             xbrl.find_all(name=re.compile("(us-gaap:netcashprovidedbyusedin\
@@ -529,7 +522,7 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.net_cash_flows_financing_continuing = \
             self.data_processing(net_cash_flows_financing_continuing, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         net_cash_flows_operating_discontinued = \
             xbrl.find_all(name=re.compile("(us-gaap:cashprovidedbyusedin\
@@ -537,7 +530,7 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.net_cash_flows_operating_discontinued = \
             self.data_processing(net_cash_flows_operating_discontinued, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         net_cash_flows_investing_discontinued = \
             xbrl.find_all(name=re.compile("(us-gaap:cashprovidedbyusedin\
@@ -545,7 +538,7 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.net_cash_flows_investing_discontinued = \
             self.data_processing(net_cash_flows_investing_discontinued, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         net_cash_flows_discontinued = \
             xbrl.find_all(name=re.compile("(us-gaap:netcashprovidedbyusedin\
@@ -553,7 +546,7 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.net_cash_flows_discontinued = \
             self.data_processing(net_cash_flows_discontinued, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         common_shares_outstanding = \
             xbrl.find_all(name=re.compile("(us-gaap:commonstockshares\
@@ -561,7 +554,7 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.common_shares_outstanding = \
             self.data_processing(common_shares_outstanding, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         common_shares_issued = \
             xbrl.find_all(name=re.compile("(us-gaap:commonstockshares\
@@ -569,7 +562,7 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.common_shares_issued = \
             self.data_processing(common_shares_issued, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         common_shares_authorized = \
             xbrl.find_all(name=re.compile("(us-gaap:commonstockshares\
@@ -577,7 +570,7 @@ class XBRLParser(object):
                           re.IGNORECASE | re.MULTILINE))
         gaap_obj.common_shares_authorized = \
             self.data_processing(common_shares_authorized, xbrl,
-                                 ignore_errors, logger, context_ids)
+                                 ignore_errors, context_ids)
 
         return gaap_obj
 
@@ -590,19 +583,11 @@ class XBRLParser(object):
         """
         dei_obj = DEI()
 
-        if ignore_errors == 2:
-            logging.basicConfig(filename='/tmp/xbrl.log',
-                level=logging.ERROR,
-                format='%(asctime)s %(levelname)s %(name)s %(message)s')
-            logger = logging.getLogger(__name__)
-        else:
-            logger = None
-
         trading_symbol = xbrl.find_all(name=re.compile("(dei:tradingsymbol)",
             re.IGNORECASE | re.MULTILINE))
         dei_obj.trading_symbol = \
             self.data_processing(trading_symbol, xbrl,
-                                 ignore_errors, logger,
+                                 ignore_errors,
                                  options={'type': 'String',
                                           'no_context': True})
 
@@ -610,7 +595,7 @@ class XBRLParser(object):
             re.IGNORECASE | re.MULTILINE))
         dei_obj.company_name = \
             self.data_processing(company_name, xbrl,
-                                 ignore_errors, logger,
+                                 ignore_errors,
                                  options={'type': 'String',
                                           'no_context': True})
 
@@ -618,7 +603,7 @@ class XBRLParser(object):
             re.IGNORECASE | re.MULTILINE))
         dei_obj.shares_outstanding = \
             self.data_processing(shares_outstanding, xbrl,
-                                 ignore_errors, logger,
+                                 ignore_errors,
                                  options={'type': 'Number',
                                           'no_context': True})
 
@@ -626,7 +611,7 @@ class XBRLParser(object):
             re.IGNORECASE | re.MULTILINE))
         dei_obj.public_float = \
             self.data_processing(public_float, xbrl,
-                                 ignore_errors, logger,
+                                 ignore_errors,
                                  options={'type': 'Number',
                                           'no_context': True})
 
@@ -687,7 +672,6 @@ class XBRLParser(object):
                         elements,
                         xbrl,
                         ignore_errors,
-                        logger,
                         context_ids=[],
                         **kwargs):
         """
@@ -706,7 +690,6 @@ class XBRLParser(object):
                     return elements[0].text
 
         try:
-
             # Extract the correct values by context
             correct_elements = []
             for element in elements:
@@ -735,7 +718,7 @@ class XBRLParser(object):
             elif ignore_errors == 1:
                 return 0
             elif ignore_errors == 2:
-                logger.error(str(e) + " error at " +
+                self.logger.error(str(e) + " error at " +
                     ''.join(elements[0].text))
 
 
