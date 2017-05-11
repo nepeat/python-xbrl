@@ -88,7 +88,6 @@ class XBRLParser(object):
 
         return xbrl
 
-    @classmethod
     def parseGAAP(self,
                   xbrl,
                   doc_date="",
@@ -192,9 +191,7 @@ class XBRLParser(object):
         except IndexError:
             raise XBRLParserException('problem getting contexts')
 
-        assets = xbrl.find_all("us-gaap:assets")
-        gaap_obj.assets = self.data_processing(assets, xbrl,
-            ignore_errors, context_ids)
+        gaap_obj.assets = self.get_tag(xbrl, "us-gaap:assets$", ignore_errors, context_ids)
 
         current_assets = \
             xbrl.find_all("us-gaap:assetscurrent")
@@ -213,43 +210,12 @@ class XBRLParser(object):
                 self.data_processing(non_current_assets, xbrl,
                     ignore_errors, context_ids)
 
-        liabilities_and_equity = \
-            xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(liabilitiesand)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.liabilities_and_equity = \
-            self.data_processing(liabilities_and_equity, xbrl,
-                ignore_errors, context_ids)
+        gaap_obj.liabilities_and_equity = self.get_tag(xbrl, "(us-gaap:)[^s]*(liabilitiesand)", ignore_errors, context_ids)
+        gaap_obj.liabilities = self.get_tag(xbrl, "(us-gaap:)[^s]*(liabilities)", ignore_errors, context_ids)
+        gaap_obj.current_liabilities = self.get_tag(xbrl, "(us-gaap:)[^s]*(currentliabilities)", ignore_errors, context_ids)
+        gaap_obj.noncurrent_liabilities = self.get_tag(xbrl, "(us-gaap:)[^s]*(noncurrentliabilities)", ignore_errors, context_ids)
 
-        liabilities = \
-            xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(liabilities)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.liabilities = \
-            self.data_processing(liabilities, xbrl, ignore_errors,
-                context_ids)
-
-        current_liabilities = \
-            xbrl.find_all(name=re.compile("(us-gaap:)[^s]\
-                          *(currentliabilities)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.current_liabilities = \
-            self.data_processing(current_liabilities, xbrl,
-                ignore_errors, context_ids)
-
-        noncurrent_liabilities = \
-            xbrl.find_all(name=re.compile("(us-gaap:)[^s]\
-                          *(noncurrentliabilities)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.noncurrent_liabilities = \
-            self.data_processing(noncurrent_liabilities, xbrl,
-                ignore_errors, context_ids)
-
-        commitments_and_contingencies = \
-            xbrl.find_all(name=re.compile("(us-gaap:commitments\
-                          andcontingencies)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.commitments_and_contingencies = \
-            self.data_processing(commitments_and_contingencies, xbrl,
-                ignore_errors, context_ids)
+        gaap_obj.commitments_and_contingencies = self.get_tag(xbrl, "(us-gaap:commitmentsandcontingencies)", ignore_errors, context_ids)
 
         redeemable_noncontrolling_interest = \
             xbrl.find_all(name=re.compile("(us-gaap:redeemablenoncontrolling\
@@ -258,156 +224,49 @@ class XBRLParser(object):
             self.data_processing(redeemable_noncontrolling_interest,
                 xbrl, ignore_errors, context_ids)
 
-        temporary_equity = \
-            xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(temporaryequity)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.temporary_equity = \
-            self.data_processing(temporary_equity, xbrl, ignore_errors,
-                context_ids)
+        gaap_obj.temporary_equity = self.get_tag(xbrl, "(us-gaap:)[^s]*(temporaryequity)", ignore_errors, context_ids)
 
-        equity = xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(equity)",
-                               re.IGNORECASE | re.MULTILINE))
-        gaap_obj.equity = self.data_processing(equity, xbrl, ignore_errors,
-            context_ids)
+        gaap_obj.equity = self.get_tag(xbrl, "(us-gaap:)[^s]*(equity)", ignore_errors, context_ids)
 
-        equity_attributable_interest = \
-            xbrl.find_all(name=re.compile("(us-gaap:minorityinterest)",
-                          re.IGNORECASE | re.MULTILINE))
-        equity_attributable_interest += \
-            xbrl.find_all(name=re.compile("(us-gaap:partnerscapitalattributable\
-                          tononcontrollinginterest)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.equity_attributable_interest = \
-            self.data_processing(equity_attributable_interest, xbrl,
-                ignore_errors, context_ids)
+        gaap_obj.equity_attributable_interest = self.get_tag(xbrl, "(us-gaap:minorityinterest)", ignore_errors, context_ids)
 
-        equity_attributable_parent = \
-            xbrl.find_all(name=re.compile("(us-gaap:liabilitiesandpartners\
-                          capital)",
-                          re.IGNORECASE | re.MULTILINE))
-        stockholders_equity = \
-            xbrl.find_all(name=re.compile("(us-gaap:stockholdersequity)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.equity_attributable_parent = \
-            self.data_processing(equity_attributable_parent, xbrl,
-                ignore_errors, context_ids)
-        gaap_obj.stockholders_equity = \
-            self.data_processing(stockholders_equity, xbrl, ignore_errors,
-                context_ids)
+        gaap_obj.stockholders_equity = self.get_tag(xbrl, "(us-gaap:stockholdersequity)", ignore_errors, context_ids)
+        gaap_obj.equity_attributable_parent = self.get_tag(xbrl, "(us-gaap:liabilitiesandpartnerscapital)", ignore_errors, context_ids)
 
         # Incomes #
-        revenues = xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(revenue)",
-                                 re.IGNORECASE | re.MULTILINE))
-        gaap_obj.revenues = self.data_processing(revenues, xbrl,
-            ignore_errors, context_ids)
+        gaap_obj.revenues = self.get_tag(xbrl, "(us-gaap:)[^s]*(revenue)", ignore_errors, context_ids)
 
-        cost_of_revenue = \
-            xbrl.find_all(name=re.compile("(us-gaap:costofrevenue)",
-                          re.IGNORECASE | re.MULTILINE))
-        cost_of_revenue += \
-            xbrl.find_all(name=re.compile("(us-gaap:costffservices)",
-                          re.IGNORECASE | re.MULTILINE))
-        cost_of_revenue += \
-            xbrl.find_all(name=re.compile("(us-gaap:costofgoodssold)",
-                          re.IGNORECASE | re.MULTILINE))
-        cost_of_revenue += \
-            xbrl.find_all(name=re.compile("(us-gaap:costofgoodsand\
-                          servicessold)",
-                          re.IGNORECASE | re.MULTILINE))
 
-        gross_profit = \
-            xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(grossprofit)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.gross_profit = \
-            self.data_processing(gross_profit, xbrl, ignore_errors,
-                                 context_ids)
+        gaap_obj.cost_of_revenue = self.get_tag(xbrl, [
+            "(us-gaap:costofrevenue)",
+            "(us-gaap:costofservices)",
+            "(us-gaap:costofgoodssold)",
+            "(us-gaap:costofgoodsandservicessold)"
+        ], ignore_errors, context_ids)
 
-        operating_expenses = \
-            xbrl.find_all(name=re.compile("(us-gaap:operating)[^s]*(expenses)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.operating_expenses = \
-            self.data_processing(operating_expenses, xbrl, ignore_errors,
-                                 context_ids)
+        gaap_obj.gross_profit = self.get_tag(xbrl, "(us-gaap:)[^s]*(grossprofit)", ignore_errors, context_ids)
+        gaap_obj.operating_expenses = self.get_tag(xbrl, "(us-gaap:operating)[^s]*(expenses)", ignore_errors, context_ids)
+        gaap_obj.costs_and_expenses = self.get_tag(xbrl, "(us-gaap:)[^s]*(costsandexpenses)", ignore_errors, context_ids)
+        gaap_obj.other_operating_income = self.get_tag(xbrl, "(us-gaap:otheroperatingincome)", ignore_errors, context_ids)
+        gaap_obj.operating_income_loss = self.get_tag(xbrl, "(us-gaap:otheroperatingincome)", ignore_errors, context_ids)
+        gaap_obj.nonoperating_income_loss = self.get_tag(xbrl, "(us-gaap:nonoperatingincomeloss)", ignore_errors, context_ids)
+        gaap_obj.interest_and_debt_expense = self.get_tag(xbrl, "(us-gaap:interestanddebtexpense)", ignore_errors, context_ids)
 
-        costs_and_expenses = \
-            xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(costsandexpenses)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.costs_and_expenses = \
-            self.data_processing(costs_and_expenses, xbrl, ignore_errors,
-                                 context_ids)
 
-        other_operating_income = \
-            xbrl.find_all(name=re.compile("(us-gaap:otheroperatingincome)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.other_operating_income = \
-            self.data_processing(other_operating_income, xbrl, ignore_errors,
-                                 context_ids)
-
-        operating_income_loss = \
-            xbrl.find_all(name=re.compile("(us-gaap:otheroperatingincome)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.operating_income_loss = \
-            self.data_processing(operating_income_loss, xbrl, ignore_errors,
-                                 context_ids)
-
-        nonoperating_income_loss = \
-            xbrl.find_all(name=re.compile("(us-gaap:nonoperatingincomeloss)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.nonoperating_income_loss = \
-            self.data_processing(nonoperating_income_loss, xbrl,
-                                 ignore_errors, context_ids)
-
-        interest_and_debt_expense = \
-            xbrl.find_all(name=re.compile("(us-gaap:interestanddebtexpense)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.interest_and_debt_expense = \
-            self.data_processing(interest_and_debt_expense, xbrl,
-                                 ignore_errors, context_ids)
-
-        income_before_equity_investments = \
-            xbrl.find_all(name=re.compile("(us-gaap:incomelossfromcontinuing"
+        gaap_obj.income_before_equity_investments = self.get_tag(xbrl, "(us-gaap:incomelossfromcontinuing"
                                           "operationsbeforeincometaxes"
-                                          "minorityinterest)",
-                          re.IGNORECASE  | re.MULTILINE))
-        gaap_obj.income_before_equity_investments = \
-            self.data_processing(income_before_equity_investments, xbrl,
-                                 ignore_errors, context_ids)
+                                          "minorityinterest)", ignore_errors, context_ids)
 
-        income_from_equity_investments = \
-            xbrl.find_all(name=re.compile("(us-gaap:incomelossfromequity"
-                          "methodinvestments)", re.IGNORECASE | re.MULTILINE))
-        gaap_obj.income_from_equity_investments = \
-            self.data_processing(income_from_equity_investments, xbrl,
-                                 ignore_errors, context_ids)
+        gaap_obj.income_from_equity_investments = self.get_tag(xbrl, "(us-gaap:incomelossfromequity"
+                          "methodinvestments)", ignore_errors, context_ids)
 
-        income_tax_expense_benefit = \
-            xbrl.find_all(name=re.compile("(us-gaap:incometaxexpensebenefit)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.income_tax_expense_benefit = \
-            self.data_processing(income_tax_expense_benefit, xbrl,
-                                 ignore_errors, context_ids)
+        gaap_obj.income_tax_expense_benefit = self.get_tag(xbrl, "(us-gaap:incometaxexpensebenefit)", ignore_errors, context_ids)
 
-        income_continuing_operations_tax = \
-            xbrl.find_all(name=re.compile("(us-gaap:IncomeLossBeforeExtraordinaryItems\
-                          AndCumulativeEffectOfChangeInAccountingPrinciple)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.income_continuing_operations_tax = \
-            self.data_processing(income_continuing_operations_tax, xbrl,
-                                 ignore_errors, context_ids)
+        gaap_obj.income_continuing_operations_tax = self.get_tag(xbrl, "(us-gaap:IncomeLossBeforeExtraordinaryItemsAndCumulativeEffectOfChangeInAccountingPrinciple)", ignore_errors, context_ids)
 
-        income_discontinued_operations = \
-            xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(discontinued"
-                          "operation)", re.IGNORECASE | re.MULTILINE))
-        gaap_obj.income_discontinued_operations = \
-            self.data_processing(income_discontinued_operations, xbrl,
-                                 ignore_errors, context_ids)
+        gaap_obj.income_discontinued_operations = self.get_tag(xbrl, "(us-gaap:)[^s]*(discontinuedoperation)", ignore_errors, context_ids)
 
-        extraordary_items_gain_loss = \
-            xbrl.find_all(name=re.compile("(us-gaap:extraordinaryitem"
-                          "netoftax)", re.IGNORECASE | re.MULTILINE))
-        gaap_obj.extraordary_items_gain_loss = \
-            self.data_processing(extraordary_items_gain_loss, xbrl,
-                                 ignore_errors, context_ids)
+        gaap_obj.extraordary_items_gain_loss = self.get_tag(xbrl, "(us-gaap:extraordinaryitemnetoftax)", ignore_errors, context_ids)
 
         income_loss = \
             xbrl.find_all(name=re.compile("(us-gaap:)[^s]*(incomeloss)",
@@ -421,162 +280,38 @@ class XBRLParser(object):
             self.data_processing(income_loss, xbrl, ignore_errors,
                                  context_ids)
 
-        net_income_shareholders = \
-            xbrl.find_all(name=re.compile("(us-gaap:netincomeavailabletocommon\
-                          stockholdersbasic)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.net_income_shareholders = \
-            self.data_processing(net_income_shareholders, xbrl, ignore_errors,
-                                 context_ids)
+        gaap_obj.net_income_shareholders = self.get_tag(xbrl, "(us-gaap:netincomeavailabletocommonstockholdersbasic)", ignore_errors, context_ids)
 
-        preferred_stock_dividends = \
-            xbrl.find_all(name=re.compile("(us-gaap:preferredstockdividendsand\
-                          otheradjustments)", re.IGNORECASE | re.MULTILINE))
-        gaap_obj.preferred_stock_dividends = \
-            self.data_processing(preferred_stock_dividends, xbrl,
-                ignore_errors, context_ids)
+        gaap_obj.preferred_stock_dividends = self.get_tag(xbrl, "(us-gaap:preferredstockdividendsandotheradjustments)", ignore_errors, context_ids)
 
-        net_income_loss_noncontrolling = \
-            xbrl.find_all(name=re.compile("(us-gaap:netincomelossattributableto\
-                          noncontrollinginterest)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.net_income_loss_noncontrolling = \
-            self.data_processing(net_income_loss_noncontrolling, xbrl,
-                                 ignore_errors, context_ids)
+        gaap_obj.net_income_loss_noncontrolling = self.get_tag(xbrl, "(us-gaap:netincomelossattributabletononcontrollinginterest)", ignore_errors, context_ids)
+        gaap_obj.net_income_loss = self.get_tag(xbrl, "^us-gaap:netincomeloss$", ignore_errors, context_ids)
 
-        net_income_loss = \
-            xbrl.find_all(name=re.compile("^us-gaap:netincomeloss$",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.net_income_loss = \
-            self.data_processing(net_income_loss, xbrl, ignore_errors,
-                                 context_ids)
+        # Comprehensive income
+        gaap_obj.comprehensive_income = self.get_tag(xbrl, "(us-gaap:comprehensiveincome)", ignore_errors, context_ids)
+        gaap_obj.comprehensive_income_parent = self.get_tag(xbrl, "(us-gaap:comprehensiveincomenetoftax)", ignore_errors, context_ids)
+        gaap_obj.comprehensive_income_interest = self.get_tag(xbrl, "(us-gaap:comprehensiveincomenetoftaxattributabletononcontrollinginterest)", ignore_errors, context_ids)
+        gaap_obj.other_comprehensive_income = self.get_tag(xbrl, "(us-gaap:othercomprehensiveincomelossnetoftax)", ignore_errors, context_ids)
 
-        other_comprehensive_income = \
-            xbrl.find_all(name=re.compile("(us-gaap:othercomprehensiveincomeloss\
-                          netoftax)", re.IGNORECASE | re.MULTILINE))
-        gaap_obj.other_comprehensive_income = \
-            self.data_processing(other_comprehensive_income, xbrl,
-                ignore_errors, context_ids)
+        # Net cash flow statements
+        gaap_obj.net_cash_flows_operating = self.get_tag(xbrl, "(us-gaap:netcashprovidedbyusedinoperatingactivities)", ignore_errors, context_ids)
+        gaap_obj.net_cash_flows_investing = self.get_tag(xbrl, "(us-gaap:netcashprovidedbyusedininvestingactivities)", ignore_errors, context_ids)
+        gaap_obj.net_cash_flows_financing = self.get_tag(xbrl, "(us-gaap:netcashprovidedbyusedinfinancingactivities)", ignore_errors, context_ids)
 
-        comprehensive_income = \
-            xbrl.find_all(name=re.compile("(us-gaap:comprehensiveincome)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.comprehensive_income = \
-            self.data_processing(comprehensive_income, xbrl, ignore_errors,
-                                 context_ids)
+        gaap_obj.net_cash_flows_operating_continuing = self.get_tag(xbrl, "(us-gaap:netcashprovidedbyusedinoperatingactivitiescontinuingoperations)", ignore_errors, context_ids)
+        gaap_obj.net_cash_flows_investing_continuing = self.get_tag(xbrl, "(us-gaap:netcashprovidedbyusedininvestingactivitiescontinuingoperations)", ignore_errors, context_ids)
+        gaap_obj.net_cash_flows_financing_continuing = self.get_tag(xbrl, "(us-gaap:netcashprovidedbyusedinfinancingactivitiescontinuingoperations)", ignore_errors, context_ids)
 
-        comprehensive_income_parent = \
-            xbrl.find_all(name=re.compile("(us-gaap:comprehensiveincomenetof"
-                          "tax)", re.IGNORECASE | re.MULTILINE))
-        gaap_obj.comprehensive_income_parent = \
-            self.data_processing(comprehensive_income_parent, xbrl,
-                                 ignore_errors, context_ids)
+        gaap_obj.net_cash_flows_operating_discontinued = self.get_tag(xbrl, "(us-gaap:cashprovidedbyusedinoperatingactivitiesdiscontinuedoperations)", ignore_errors, context_ids)
+        gaap_obj.net_cash_flows_investing_discontinued = self.get_tag(xbrl, "(us-gaap:cashprovidedbyusedininvestingactivitiesdiscontinuedoperations)", ignore_errors, context_ids)
 
-        comprehensive_income_interest = \
-            xbrl.find_all(name=re.compile("(us-gaap:comprehensiveincomenetoftax\
-                          attributabletononcontrollinginterest)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.comprehensive_income_interest = \
-            self.data_processing(comprehensive_income_interest, xbrl,
-                                 ignore_errors, context_ids)
-
-        # Cash flow statements #
-        net_cash_flows_operating = \
-            xbrl.find_all(name=re.compile("(us-gaap:netcashprovidedbyusedin\
-                          operatingactivities)", re.IGNORECASE | re.MULTILINE))
-        gaap_obj.net_cash_flows_operating = \
-            self.data_processing(net_cash_flows_operating, xbrl, ignore_errors,
-                                 context_ids)
-
-        net_cash_flows_investing = \
-            xbrl.find_all(name=re.compile("(us-gaap:netcashprovidedbyusedin\
-                          investingactivities)", re.IGNORECASE | re.MULTILINE))
-        gaap_obj.net_cash_flows_investing = \
-            self.data_processing(net_cash_flows_investing, xbrl, ignore_errors,
-                                context_ids)
-
-        net_cash_flows_financing = \
-            xbrl.find_all(name=re.compile("(us-gaap:netcashprovidedbyusedin\
-                          financingactivities)", re.IGNORECASE | re.MULTILINE))
-        gaap_obj.net_cash_flows_financing = \
-            self.data_processing(net_cash_flows_financing, xbrl, ignore_errors,
-                                context_ids)
-
-        net_cash_flows_operating_continuing = \
-            xbrl.find_all(name=re.compile("(us-gaap:netcashprovidedbyusedin\
-                          operatingactivitiescontinuingoperations)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.net_cash_operating_continuing = \
-            self.data_processing(net_cash_flows_operating_continuing, xbrl,
-                                 ignore_errors, context_ids)
-
-        net_cash_flows_investing_continuing = \
-            xbrl.find_all(name=re.compile("(us-gaap:netcashprovidedbyusedin\
-                          investingactivitiescontinuingoperations)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.net_cash_flows_investing_continuing = \
-            self.data_processing(net_cash_flows_investing_continuing, xbrl,
-                                 ignore_errors, context_ids)
-
-        net_cash_flows_financing_continuing = \
-            xbrl.find_all(name=re.compile("(us-gaap:netcashprovidedbyusedin\
-                          financingactivitiescontinuingoperations)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.net_cash_flows_financing_continuing = \
-            self.data_processing(net_cash_flows_financing_continuing, xbrl,
-                                 ignore_errors, context_ids)
-
-        net_cash_flows_operating_discontinued = \
-            xbrl.find_all(name=re.compile("(us-gaap:cashprovidedbyusedin\
-                          operatingactivitiesdiscontinuedoperations)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.net_cash_flows_operating_discontinued = \
-            self.data_processing(net_cash_flows_operating_discontinued, xbrl,
-                                 ignore_errors, context_ids)
-
-        net_cash_flows_investing_discontinued = \
-            xbrl.find_all(name=re.compile("(us-gaap:cashprovidedbyusedin\
-                          investingactivitiesdiscontinuedoperations)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.net_cash_flows_investing_discontinued = \
-            self.data_processing(net_cash_flows_investing_discontinued, xbrl,
-                                 ignore_errors, context_ids)
-
-        net_cash_flows_discontinued = \
-            xbrl.find_all(name=re.compile("(us-gaap:netcashprovidedbyusedin\
-                          discontinuedoperations)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.net_cash_flows_discontinued = \
-            self.data_processing(net_cash_flows_discontinued, xbrl,
-                                 ignore_errors, context_ids)
-
-        common_shares_outstanding = \
-            xbrl.find_all(name=re.compile("(us-gaap:commonstockshares\
-                          outstanding)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.common_shares_outstanding = \
-            self.data_processing(common_shares_outstanding, xbrl,
-                                 ignore_errors, context_ids)
-
-        common_shares_issued = \
-            xbrl.find_all(name=re.compile("(us-gaap:commonstockshares\
-                          issued)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.common_shares_issued = \
-            self.data_processing(common_shares_issued, xbrl,
-                                 ignore_errors, context_ids)
-
-        common_shares_authorized = \
-            xbrl.find_all(name=re.compile("(us-gaap:commonstockshares\
-                          authorized)",
-                          re.IGNORECASE | re.MULTILINE))
-        gaap_obj.common_shares_authorized = \
-            self.data_processing(common_shares_authorized, xbrl,
-                                 ignore_errors, context_ids)
+        gaap_obj.net_cash_flows_discontinued = self.get_tag(xbrl, "(us-gaap:netcashprovidedbyusedindiscontinuedoperations)", ignore_errors, context_ids)
+        gaap_obj.common_shares_outstanding = self.get_tag(xbrl, "(us-gaap:commonstocksharesoutstanding)", ignore_errors, context_ids)
+        gaap_obj.common_shares_issued = self.get_tag(xbrl, "(us-gaap:commonstocksharesissued)", ignore_errors, context_ids)
+        gaap_obj.common_shares_authorized = self.get_tag(xbrl, "(us-gaap:commonstocksharesauthorized)", ignore_errors, context_ids)
 
         return gaap_obj
 
-    @classmethod
     def parseDEI(self,
                  xbrl,
                  ignore_errors=0):
@@ -585,37 +320,11 @@ class XBRLParser(object):
         """
         dei_obj = DEI()
 
-        trading_symbol = xbrl.find_all(name=re.compile("(dei:tradingsymbol)",
-            re.IGNORECASE | re.MULTILINE))
-        dei_obj.trading_symbol = \
-            self.data_processing(trading_symbol, xbrl,
-                                 ignore_errors,
-                                 options={'type': 'String',
-                                          'no_context': True})
-
-        company_name = xbrl.find_all(name=re.compile("(dei:entityregistrantname)",
-            re.IGNORECASE | re.MULTILINE))
-        dei_obj.company_name = \
-            self.data_processing(company_name, xbrl,
-                                 ignore_errors,
-                                 options={'type': 'String',
-                                          'no_context': True})
-
-        shares_outstanding = xbrl.find_all(name=re.compile("(dei:entitycommonstocksharesoutstanding)",
-            re.IGNORECASE | re.MULTILINE))
-        dei_obj.shares_outstanding = \
-            self.data_processing(shares_outstanding, xbrl,
-                                 ignore_errors,
-                                 options={'type': 'Number',
-                                          'no_context': True})
-
-        public_float = xbrl.find_all(name=re.compile("(dei:entitypublicfloat)",
-            re.IGNORECASE | re.MULTILINE))
-        dei_obj.public_float = \
-            self.data_processing(public_float, xbrl,
-                                 ignore_errors,
-                                 options={'type': 'Number',
-                                          'no_context': True})
+        dei_obj.trading_symbol = self.get_tag(xbrl, "(dei:tradingsymbol)", tag_type="String", no_context=True)
+        dei_obj.company_name = self.get_tag(xbrl, "(dei:entityregistrantname)", tag_type="String", no_context=True)
+        dei_obj.shares_outstanding = self.get_tag(xbrl, "(dei:entitycommonstocksharesoutstanding)", no_context=True)
+        dei_obj.public_float = self.get_tag(xbrl, "(dei:entitycommonstocksharesoutstanding)", no_context=True)
+        dei_obj.public_float = self.get_tag(xbrl, "(dei:entitypublicfloat)", no_context=True)
 
         return dei_obj
 
@@ -670,6 +379,37 @@ class XBRLParser(object):
         except ValueError:
             return False
 
+    def get_tag(self,
+                xbrl,
+                tag,
+                ignore_errors=0,
+                context_ids=[],
+                tag_type="Number",
+                no_context=False):
+        """
+        Returns a tag's value from the XBRL soup.
+
+        :param xbrl: The XBRL soup object returned by parse()
+        :param tag: A regex for the tag you would like to retrieve.
+        :param tag_type: Valid types are 'String' and 'Number'
+        :param ignore_errors: 0: raise exception, halt, 1: ignore, continue, 2: ignore, continue, log
+
+        :returns: The tag's value in the XBRL soup or 0.
+        """
+
+        if isinstance(tag, list):
+            tags = []
+            for _tag in tag:
+                tags += xbrl.find_all(name=re.compile(_tag, re.IGNORECASE | re.MULTILINE))
+        else:
+            tags = xbrl.find_all(name=re.compile(tag, re.IGNORECASE | re.MULTILINE))
+        return self.data_processing(tags,
+                                    xbrl,
+                                    ignore_errors,
+                                    context_ids,
+                                    options={'type': tag_type,
+                                            'no_context': no_context})
+
     @classmethod
     def data_processing(self,
                         elements,
@@ -715,6 +455,8 @@ class XBRLParser(object):
             else:
                 return 0
         except Exception as e:
+            print(str(e) + " error at " +
+                ''.join(elements[0].text))
             if ignore_errors == 0:
                 raise XBRLParserException('value extraction error')
             elif ignore_errors == 1:
