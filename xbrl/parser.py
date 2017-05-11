@@ -30,7 +30,6 @@ class XBRLParser(object):
             warnings.warn("The precision argument has been deprecated. The argument will not affect any results.", DeprecationWarning, stacklevel=2)
         self.logger = logging.getLogger(__name__)
 
-    @classmethod
     def parse(self, file_handle):
         """
         parse is the main entry point for an XBRLParser. It takes a file
@@ -305,7 +304,6 @@ class XBRLParser(object):
 
         return dei_obj
 
-    @classmethod
     def parseCustom(self,
                     xbrl,
                     ignore_errors=0):
@@ -387,7 +385,6 @@ class XBRLParser(object):
                                     options={'type': tag_type,
                                             'no_context': no_context})
 
-    @classmethod
     def data_processing(self,
                         elements,
                         xbrl,
