@@ -3,3 +3,7 @@
 *.pyc
 test.py
 tester.py
+env/
+.idea
+*.egg-info
+.cache/
